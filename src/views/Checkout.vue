@@ -8,53 +8,55 @@
       <li>2.确认订单</li>
       <li>3.购买成功</li>
     </ul>
-    <div class="card">
-      <div class="inner" v-for="(v, i) of productList" :key="i">
-        <input
-          class="checkbox"
-          type="checkbox"
-          :checked="active"
-          name=""
-          @click="checkOne(i)"
-          ref="checkI"
-        />
+    <div class="pro">
+      <div class="card">
+        <div class="inner" v-for="(v, i) of productList" :key="i">
+          <input
+            class="checkbox"
+            type="checkbox"
+            :checked="active"
+            name=""
+            @click="checkOne(i)"
+            ref="checkI"
+          />
+          <div class="left">
+            <img :src="v.img" alt="" />
+          </div>
+          <div class="right">
+            <p class="title"><span>水果蛋糕|水果传奇</span></p>
+            <p>尺寸选择:6英寸(1-3人用)</p>
+            <div class="desc">
+              <span class="price">￥{{ v.price }}</span>
+              <span class="change">
+                <button @click="changeNumber(false, i)">－</button>
+                <input :value="v.num" type="text" />
+                <button @click="changeNumber(true, i)">＋</button>
+              </span>
+            </div>
+          </div>
+          <div class="del" @click="delOne(i)">×</div>
+        </div>
+      </div>
+      <footer>
         <div class="left">
-          <img :src="v.img" alt="" />
+          <input
+            @click="checkAll"
+            type="checkbox"
+            :checked="allSelect"
+            name=""
+            id="all"
+          />
+          <label for="all">全选</label>
+          <span></span>
         </div>
         <div class="right">
-          <p class="title"><span>水果蛋糕|水果传奇</span></p>
-          <p>尺寸选择:6英寸(1-3人用)</p>
-          <div class="desc">
-            <span class="price">￥{{ v.price }}</span>
-            <span class="change">
-              <button @click="changeNumber(false, i)">－</button>
-              <input :value="v.num" type="text" />
-              <button @click="changeNumber(true, i)">＋</button>
-            </span>
-          </div>
+          <span class="all"
+            >合计: <i> ￥{{ totalPrice }}</i></span
+          >
+          <button class="check">结算({{ carNumber }})</button>
         </div>
-        <div class="del">×</div>
-      </div>
+      </footer>
     </div>
-    <footer>
-      <div class="left">
-        <input
-          @click="checkAll"
-          type="checkbox"
-          :checked="allSelect"
-          name=""
-          id="all"
-        />
-        <label for="all">全选</label>
-        <span></span>
-      </div>
-      <div class="right">
-        <span class="all"
-          >合计: <i> ￥{{ totalPrice }}</i></span
-        >
-        <button class="check">结算({{ carNumber }})</button>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -63,6 +65,7 @@ export default {
   data() {
     return {
       // number: 0,
+      isNone: true,
       active: true,
       carNumber: 0,
       allSelect: true,
@@ -101,6 +104,10 @@ export default {
     // this.isAll();
   },
   methods: {
+    delOne(i) {
+      this.productList.splice(i, 1);
+      console.log(this.productList);
+    },
     checkOne(i) {
       let s = 0;
       let checkInputs = this.$refs.checkI;
@@ -132,13 +139,26 @@ export default {
       }
     },
     getAll() {
-      this.totalPrice = 0;
       this.carNumber = 0;
-      this.productList.forEach((el) => {
-        this.carNumber += el.num;
-        this.totalPrice += el.price * el.num;
-      });
+      this.totalPrice = 0;
+      let checkInputs = this.$refs.checkI;
+      for (let i = 0; i < checkInputs.length; i++) {
+        if (checkInputs[i].checked) {
+          this.carNumber += this.productList[i].num;
+          this.totalPrice +=
+            this.productList[i].num * this.productList[i].price;
+          // console.log(this.carNumber);
+        }
+      }
     },
+    // getAll() {
+    //   this.totalPrice = 0;
+    //   this.carNumber = 0;
+    //   this.productList.forEach((el) => {
+    //     this.carNumber += el.num;
+    //     this.totalPrice += el.price * el.num;
+    //   });
+    // },
     changeNumber(bool, i) {
       if (bool) {
         this.productList[i].num++;
